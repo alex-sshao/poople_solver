@@ -14,6 +14,7 @@ void get_poomap( std::string filename, vector<std::string> wordlist ) {
 	wordlist.resize( 1 );
 	for ( int i = 0; std::getline( words, wordlist[i] ); ++i )
 		wordlist.resize( i + 2 );
+	words.close();
 }
 
 template <typename T> inline bool in_vec( vector<T> vec, T item ) {
@@ -28,23 +29,28 @@ bool one_diff( std::string w1, std::string w2 ) {
 	return diff == 1;
 }
 
-void dist_from_poop( vector<std::string>						   wordlist,
-					 std::map<std::string, int, std::greater<int>> wordmap ) {
-	for ( auto word : wordlist ) wordmap.insert( { word, 0 } );
-	wordmap.at("poop") = -1;
-	int nz = 0; 
-	while ( nz < wordmap.size() ) {
-		
-	}
-}
-
 void poosolve( std::string word, const vector<std::string> wordlist ) {
 	if ( in_vec( wordlist, word ) ) {
 		std::cout << "Word not in list!\n";
 		return;
 	}
-	std::map<std::string, int, std::greater<int>> wordmap;
-	dist_from_poop( wordlist, wordmap );
+	vector<int> dist;
+	int			nz = 0;
+	for ( auto i = 0; i < wordlist.size(); ++i ) dist.push_back( 0 );
+	for ( int i = 0; i < sizeof( dist ); ++i )
+		if ( one_diff( wordlist[i], "poop" ) ) {
+			nz++;
+			dist[i] = 1;
+		}
+	while ( nz < sizeof( dist ) )
+		for ( int i = 1; i < sizeof( dist ); ++i )
+			if ( dist[i] != 0 )
+				for ( int j = 0; j < sizeof( dist ); ++j )
+					if ( one_diff( wordlist[i], wordlist[j] ) &&
+						 dist[j] == 0 ) {
+						dist[j] = dist[i] + 1;
+						nz ++;
+					}
 }
 
 int main( int argc, char **argv ) {
