@@ -17,7 +17,7 @@ void get_poomap( std::string filename, vector<word *> *wl ) {
 	for ( int i = 0; std::getline( words, buff ); ++i ) {
 		word *w = new word;
 		w->word += buff;
-		w->dist = -1;
+		w->dist = 100;
 		if ( buff.compare( "poop" ) == 0 ) w->dist = 0;
 		w->upstream = new vector<word *>;
 		wl->push_back( w );
@@ -47,31 +47,33 @@ void poosolve( word *word, vector<struct word *> *wl ) {
 	}
 	std::cout << "Word in list, finding solution...\n";
 
-	int done = 0;
 	for ( int i = 0; i < wl->size(); ++i ) {
-		if ( one_diff( "POOP", ( *wl )[i]->word ) ) {
-			( *wl )[i]->dist = 1;
-			done++;
-		}
+		if ( one_diff( "POOP", ( *wl )[i]->word ) ) { ( *wl )[i]->dist = 1; }
 	}
-	while ( done < wl->size() )
+	while ( true ) {
+		int change = 0;
 		for ( int i = 0; i < wl->size(); ++i )
-			if ( ( *wl )[i]->dist >= 0 )
+			if ( ( *wl )[i]->dist != 100 )
 				for ( int k = 0; k < wl->size(); ++k )
 					if ( one_diff( ( *wl )[i]->word, ( *wl )[k]->word ) &&
-						 ( *wl )[k]->dist == -1 ) {
+						 ( *wl )[i]->dist + 1 <= ( *wl )[k]->dist &&
+						 in_vec( ( *wl )[i], ( *wl )[k]->upstream ) == -1 ) {
+						if ( ( *wl )[i]->dist + 1 < ( *wl )[k]->dist )
+							( *wl )[k]->upstream->clear();
 						( *wl )[k]->upstream->push_back( ( *wl )[i] );
 						( *wl )[k]->dist = ( *wl )[i]->dist + 1;
-						done++;
+						change++;
 					}
+		if ( change == 0 ) break;
+	}
 	std::cout << "Traced Words\n";
 	std::cout << "Word " + word->word + " has an optimal solution of "
 			  << ( *wl )[pos]->dist << "\n";
 
 	struct word *s = ( *wl )[pos];
-	while ( true ){
+	while ( true ) {
 		std::cout << s->word + " -> ";
-		if(s->upstream->size() == 0 ) break;
+		if ( s->upstream->size() == 0 ) break;
 		s = ( *s->upstream )[0];
 	}
 	std::cout << "POOP\n";
