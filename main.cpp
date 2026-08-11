@@ -79,7 +79,6 @@ void poosolve( word *word, vector<struct word *> *wl, int pind ) {
 	int					   done = 1;
 	vector<struct word *> *step = new vector<struct word *>;
 	step->push_back( ( *wl ).at( pind ) );
-
 	for ( int i = 0; done < wl->size(); ++i ) {
 		vector<struct word *> *s2 = new vector<struct word *>;
 		for ( int j = 0; j < step->size(); ++j )
@@ -99,18 +98,10 @@ void poosolve( word *word, vector<struct word *> *wl, int pind ) {
 	}
 	struct word *s			 = ( *wl )[pos];
 	int			 solve_count = calc_solution_count( s );
-	std::cout << "Word " + word->word + " has an optimal solution of "
+	std::cout << "\"" + word->word + "\" has an optimal solution of "
 			  << ( *wl )[pos]->dist << "\n";
 	std::cout << "Found " << solve_count << " optimal solves\n";
 	print_solves( s );
-	/*
-	while ( true ) {
-		std::cout << s->word + " -> ";
-		if ( s->upstream->size() == 0 ) break;
-		s = ( *s->upstream )[0];
-	}
-	// std::cout << "POOP\n";
-	// */
 }
 
 int main( int argc, char **argv ) {
@@ -122,9 +113,6 @@ int main( int argc, char **argv ) {
 	int				ind		 = get_poomap( "poople_words.txt", wordlist );
 	word		   *arg		 = new word{ .word = argv[1] };
 	for ( auto &c : arg->word ) c = toupper( c );
-	std::cout << "word: " << arg->word << std::endl;
-
 	poosolve( arg, wordlist, ind );
-
 	return 0;
 }
