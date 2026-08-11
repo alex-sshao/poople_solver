@@ -11,7 +11,7 @@ struct word {
 	vector<struct word *> *upstream;
 } typedef word;
 
-int get_poomap( std::string filename, vector<word *> *wl ) {
+int get_poomap( std::string filename, vector<word *> *wl, std::string end ) {
 	std::ifstream words( filename );
 	std::string	  buff;
 	int			  poop_index = 0;
@@ -19,7 +19,7 @@ int get_poomap( std::string filename, vector<word *> *wl ) {
 		word *w = new word;
 		w->word += buff;
 		w->dist = -1;
-		if ( buff.compare( "POOP" ) == 0 ) {
+		if ( buff.compare( end ) == 0 ) {
 			poop_index = i;
 			w->dist	   = 0;
 		}
@@ -52,25 +52,28 @@ int calc_solution_count( word *w ) {
 	return solves;
 }
 
-void ps_help( word *w, vector<std::string> *s ) {
+void ps_help( word *w, vector<std::string> *s, std::string end ) {
 	if ( w->upstream->size() == 0 ) {
-		std::cout << "  ";
+		std::cout << "\n  ";
 		for ( auto i : *s ) std::cout << i << " » ";
-		std::cout << "POOP \n";
+		std::cout << end + " \n";
 	}
 	s->push_back( w->word );
 	for ( int i = 0; i < w->upstream->size(); ++i ) {
-		ps_help( w->upstream->at( i ), s );
+		ps_help( w->upstream->at( i ), s, end );
 		s->pop_back();
 	}
 }
 
-void print_solves( word *w ) {
+void print_solves( word *w, std::string end ) {
 	vector<std::string> *str = new vector<std::string>;
-	ps_help( w, str );
+	ps_help( w, str, end );
 }
 
-void poosolve( word *word, vector<struct word *> *wl, int pind ) {
+void poosolve( word					 *word,
+			   vector<struct word *> *wl,
+			   int					  pind,
+			   std::string			  end ) {
 	int pos = in_vec( word, wl );
 	if ( pos == -1 ) {
 		std::cout << "Word not in list!\n";
@@ -101,7 +104,7 @@ void poosolve( word *word, vector<struct word *> *wl, int pind ) {
 	std::cout << "\"" + word->word + "\" has an optimal solution of "
 			  << ( *wl )[pos]->dist << "\n";
 	std::cout << "Found " << solve_count << " optimal solves\n";
-	print_solves( s );
+	print_solves( s, end );
 }
 
 int main( int argc, char **argv ) {
@@ -109,10 +112,15 @@ int main( int argc, char **argv ) {
 		std::cout << "Not enough arguments!\n";
 		return 0;
 	}
+	word	   *arg = new word{ .word = argv[1] };
+	std::string end;
+	if ( argc >= 3 ) end = argv[2];
+	else { end = "POOP"; }
+
 	vector<word *> *wordlist = new vector<word *>;
-	int				ind		 = get_poomap( "poople_words.txt", wordlist );
-	word		   *arg		 = new word{ .word = argv[1] };
 	for ( auto &c : arg->word ) c = toupper( c );
-	poosolve( arg, wordlist, ind );
+	for ( auto &c : end ) c = toupper( c );
+	int ind = get_poomap( "poople_words.txt", wordlist, end );
+	poosolve( arg, wordlist, ind, end );
 	return 0;
 }
