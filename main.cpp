@@ -11,28 +11,23 @@ struct word {
 	vector<struct word *> *upstream;
 } typedef word;
 
-int get_poomap( std::string filename, vector<word *> *wl, std::string end ) {
+void get_poomap( std::string filename, vector<word *> *wl, std::string end ) {
 	std::ifstream words( filename );
 	std::string	  buff;
-	int			  poop_index = 0;
 	for ( int i = 0; std::getline( words, buff ); ++i ) {
 		word *w = new word;
 		w->word += buff;
 		w->dist = -1;
-		if ( buff.compare( end ) == 0 ) {
-			poop_index = i;
-			w->dist	   = 0;
-		}
+		if ( buff.compare( end ) == 0 ) w->dist = 0;
 		w->upstream = new vector<word *>;
 		wl->push_back( w );
 	}
 	words.close();
-	return poop_index;
 }
 
-int in_vec( word *w, vector<word *> *wl ) {
+int in_vec( std::string w, vector<word *> *wl ) {
 	for ( int i = 0; i < wl->size(); ++i ) {
-		if ( !w->word.compare( ( *wl )[i]->word ) ) return i;
+		if ( !w.compare( ( *wl )[i]->word ) ) return i;
 	}
 	return -1;
 }
@@ -70,13 +65,15 @@ void print_solves( word *w, std::string end ) {
 	ps_help( w, str, end );
 }
 
-void poosolve( word					 *word,
-			   vector<struct word *> *wl,
-			   int					  pind,
-			   std::string			  end ) {
-	int pos = in_vec( word, wl );
+void poosolve( word *word, vector<struct word *> *wl, std::string end ) {
+	int pos	 = in_vec( word->word, wl );
+	int pind = in_vec( end, wl );
 	if ( pos == -1 ) {
-		std::cout << "Word not in list!\n";
+		std::cout << "Word \"" << word->word << "\" not in list!\n";
+		return;
+	}
+	if ( pind == -1 ) {
+		std::cout << "Word \"" << end << "\" not in list!\n";
 		return;
 	}
 	int					   done = 1;
@@ -90,7 +87,7 @@ void poosolve( word					 *word,
 					 ( ( *wl )[k]->dist > i || ( *wl )[k]->dist == -1 ) ) {
 					if ( ( *wl )[k]->dist == -1 ) ( *wl )[k]->dist = i + 1;
 					( *wl )[k]->upstream->push_back( step->at( j ) );
-					if ( in_vec( ( *wl )[k], s2 ) == -1 ) {
+					if ( in_vec( ( *wl )[k]->word, s2 ) == -1 ) {
 						s2->push_back( ( *wl )[k] );
 						done++;
 					}
@@ -120,7 +117,7 @@ int main( int argc, char **argv ) {
 	vector<word *> *wordlist = new vector<word *>;
 	for ( auto &c : arg->word ) c = toupper( c );
 	for ( auto &c : end ) c = toupper( c );
-	int ind = get_poomap( "poople_words.txt", wordlist, end );
-	poosolve( arg, wordlist, ind, end );
+	get_poomap( "poople_words.txt", wordlist, end );
+	poosolve( arg, wordlist, end );
 	return 0;
 }
