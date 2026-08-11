@@ -39,6 +39,14 @@ bool one_diff( std::string w1, std::string w2 ) {
 	return diff == 1;
 }
 
+int calc_solution_count( word *w ) {
+	if ( w->upstream->size() == 0 ) return 1;
+	int solves = 0;
+	for ( int i = 0; i < w->upstream->size(); ++i )
+		solves += calc_solution_count(w->upstream->at(i));
+	return solves;
+}
+
 void poosolve( word *word, vector<struct word *> *wl ) {
 	int pos = in_vec( word, wl );
 	if ( pos == -1 ) {
@@ -71,6 +79,7 @@ void poosolve( word *word, vector<struct word *> *wl ) {
 			  << ( *wl )[pos]->dist << "\n";
 
 	struct word *s = ( *wl )[pos];
+	std::cout << "Found " << calc_solution_count(s) << " optimal solves\n";
 	while ( true ) {
 		std::cout << s->word + " -> ";
 		if ( s->upstream->size() == 0 ) break;
