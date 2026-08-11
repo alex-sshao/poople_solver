@@ -52,19 +52,34 @@ int calc_solution_count( word *w ) {
 	return solves;
 }
 
+void ps_help( word *w, vector<std::string> *s ) {
+	if ( w->upstream->size() == 0 ) {
+		std::cout << "  ";
+		for ( auto i : *s ) std::cout << i << " » ";
+		std::cout << "POOP \n";
+	}
+	s->push_back( w->word );
+	for ( int i = 0; i < w->upstream->size(); ++i ) {
+		ps_help( w->upstream->at( i ), s );
+		s->pop_back();
+	}
+}
+
+void print_solves( word *w ) {
+	vector<std::string> *str = new vector<std::string>;
+	ps_help( w, str );
+}
+
 void poosolve( word *word, vector<struct word *> *wl, int pind ) {
 	int pos = in_vec( word, wl );
 	if ( pos == -1 ) {
 		std::cout << "Word not in list!\n";
 		return;
 	}
-	std::cout << "Word in list, finding solution...\n";
-
 	int					   done = 1;
 	vector<struct word *> *step = new vector<struct word *>;
 	step->push_back( ( *wl ).at( pind ) );
 
-	std::cout << "Rpind : " << pind << "\n";
 	for ( int i = 0; done < wl->size(); ++i ) {
 		vector<struct word *> *s2 = new vector<struct word *>;
 		for ( int j = 0; j < step->size(); ++j )
@@ -81,18 +96,21 @@ void poosolve( word *word, vector<struct word *> *wl, int pind ) {
 			}
 		delete step;
 		step = s2;
-		std::cout << "Step " << i << " \n";
 	}
+	struct word *s			 = ( *wl )[pos];
+	int			 solve_count = calc_solution_count( s );
 	std::cout << "Word " + word->word + " has an optimal solution of "
 			  << ( *wl )[pos]->dist << "\n";
-	struct word *s = ( *wl )[pos];
-	// std::cout << "Found " << calc_solution_count( s ) << " optimal solves\n";
+	std::cout << "Found " << solve_count << " optimal solves\n";
+	print_solves( s );
+	/*
 	while ( true ) {
 		std::cout << s->word + " -> ";
 		if ( s->upstream->size() == 0 ) break;
 		s = ( *s->upstream )[0];
 	}
 	// std::cout << "POOP\n";
+	// */
 }
 
 int main( int argc, char **argv ) {
